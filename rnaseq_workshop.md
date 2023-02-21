@@ -364,7 +364,9 @@ do
 done < SRR_IDs.txt
 ```
 
-
+```
+tree trimmed_reads/
+```
 
 
 

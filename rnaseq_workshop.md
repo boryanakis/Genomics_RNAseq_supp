@@ -523,6 +523,13 @@ ls quantification\
 ```
 
 
+```
+while read SRRID
+do
+  bash run_kallisto.sh ${SRRID}
+done < SRR_IDs.txt
+```
+
 
 
 

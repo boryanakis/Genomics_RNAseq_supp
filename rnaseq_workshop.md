@@ -138,7 +138,10 @@ ls
 
 
 ```
-fastp -i SRR11799527_1.sub_1m.fastq.gz -I SRR11799527_2.sub_1m.fastq.gz -o SRR11799527_1.sub_1m.filt.fastq.gz -O SRR11799527_2.sub_1m.filt.fastq.gz 
+fastp -i SRR11799527_1.sub_1m.fastq.gz \
+-I SRR11799527_2.sub_1m.fastq.gz \
+-o SRR11799527_1.sub_1m.filt.fastq.gz \
+-O SRR11799527_2.sub_1m.filt.fastq.gz 
 ```
 
 

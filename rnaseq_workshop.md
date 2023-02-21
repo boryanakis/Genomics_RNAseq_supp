@@ -380,7 +380,7 @@ Discuss Kallisto. (back to slides)
 
 In order to quantify the RNA-seq data for our samples, we need the transcript sequences for _D. melanogaster_. Open a new browser tab, and search for [flybase](https://flybase.org/). Go to downloads, and click on Genomes (FTP). Next, click on Drosophila melanogaster, and then navigate to the most recent release `dmel_r6.50_FB2023_01/` (at the bottom of the page). Since we need the transcript sequences, we will look in the `fasta` folder. The file that we are interested in is called `dmel-all-transcript-r6.50.fasta.gz`. Right click and select "Copy link" on that file name. We can use that link to download the reference transciptome. 
 
-Check pwd and ensure evetyone is at the same place: home dir
+Check pwd and ensure everyone is at the same place: home dir
 
 ```
 wget http://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r6.50_FB2023_01/fasta/dmel-all-transcript-r6.50.fasta.gz
@@ -404,7 +404,140 @@ kallisto index -i dmel-all-transcript-r6.50.idx  dmel-all-transcript-r6.50.fasta
 
 ```
 ls
+# dmel-all-transcript-r6.50.fasta.gz  dmel-all-transcript-r6.50.idx
 ```
+
+Now that we have the index, we can qunatify one of the samples using the trimmed reads.
+
+First, we navigate to a sample's trimmed reads directory:
+```
+cd ../trimmed_reads/SRR11799527/
+
+ls
+# SRR11799527_1.sub_1m.filt.fastq.gz  SRR11799527_2.sub_1m.filt.fastq.gz  SRR11799527.fastp.report.html  SRR11799527.fastp.report.json
+```
+
+Next, run `kallisto quant`
+```
+kallisto quant -i ../../refs/dmel-all-transcript-r6.50.idx -t 3 -o SRR11799527_kallisto SRR11799527_1.sub_1m.filt.fastq.gz SRR11799527_2.sub_1m.filt.fastq.gz
+```
+Check the dir contents now - we see a new directory called `SRR11799527_kallisto` has appeared. 
+
+```
+ls 
+# SRR11799527_1.sub_1m.filt.fastq.gz  SRR11799527_2.sub_1m.filt.fastq.gz  SRR11799527.fastp.report.html  SRR11799527.fastp.report.json  SRR11799527_kallisto
+``` 
+
+```
+ls SRR11799527_kallisto/
+# abundance.h5  abundance.tsv  run_info.json
+```
+
+The h5 file is a binary file that will be used to import the quantification of the genes into R. The abundance.tsv file is a tab-separated values file and is human readable. Let's take a look at that:
+```
+head SRR11799527_kallisto/abundance.tsv
+
+target_id       length  eff_length      est_counts      tpm
+FBtr0070000     3537    3368.3  9.07512e-06     3.26207e-06
+FBtr0307554     3546    3377.3  6.14538e-07     2.20308e-07
+FBtr0307555     4528    4359.3  17      4.72153
+FBtr0070002     1226    1057.3  0       0
+FBtr0070003     1164    995.303 0       0
+FBtr0301569     2929    2760.3  0       0
+FBtr0343166     3140    2971.3  0       0
+FBtr0070029     1164    995.303 1       1.21646
+FBtr0301572     466     297.584 0       0
+```
+The file contains quantification values that will allow us to make comparisons of expression in R. 
+
+The run_info.json file contains a summary of the run. Json files contain "key":"value" pairs of data
+```
+cat SRR11799527_kallisto/run_info.json
+
+{
+  "n_targets": 30800,
+  "n_bootstraps": 0,
+  "n_processed": 972840,
+  "n_pseudoaligned": 912510,
+  "n_unique": 266251,
+  "p_pseudoaligned": 93.8,
+  "p_unique": 27.4,
+  "kallisto_version": "0.44.0",
+  "index_version": 10,
+  "start_time": "Tue Feb 21 17:33:07 2023",
+  "call": "kallisto quant -i ../../refs/dmel-all-transcript-r6.50.idx -t 3 -o SRR11799527_kallisto SRR11799527_1.sub_1m.filt.fastq.gz SRR11799527_2.sub_1m.filt.fastq.gz"
+}
+```
+
+
+Now that we know how to run kallisto, let's make a shell script that we use to quantify all the samples. First, let's cleanup the trimmed reads directory. 
+
+```
+rm SRR11799527_kallisto/*
+
+rmdir SRR11799527_kallisto/
+
+```
+
+Return to the project dir
+```
+cd ../..
+pwd
+# /home/jovyan/rnaseq_project
+```
+
+Let's create a directory for all kallisto outputs:
+```
+mkdir quantification
+```
+
+```
+nano run_kallisto.sh
+```
+
+```
+set -e 
+
+SAMPLE=${1}
+echo ${SAMPLE}
+
+KALLISTO_IDX=/home/jovyan/rnaseq_project/refs/dmel-all-transcript-r6.50.idx
+DATA_FILT=/home/jovyan/rnaseq_project/trimmed_reads/${SAMPLE}
+OUTPUT_DIR=/home/jovyan/rnaseq_project/quantification/${SAMPLE}_kallisto
+
+kallisto quant -t 3 -i ${KALLISTO_IDX} \
+-o ${OUTPUT_DIR} \
+${DATA_FILT}/${SAMPLE}_1.sub_1m.filt.fastq.gz \
+${DATA_FILT}/${SAMPLE}_2.sub_1m.filt.fastq.gz
+```
+
+```
+bash run_kallisto.sh SRR11799527
+
+```
+
+
+```
+ls quantification\
+# SRR11799527_kallisto
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

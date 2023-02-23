@@ -62,6 +62,9 @@ Conda is a package manager - it makes software installation easier. Here are the
 2. install the software that we need
 3. activate the environment 
 
+Documentation: https://docs.conda.io/en/latest/
+Cheat sheet: https://docs.conda.io/projects/conda/en/latest/user-guide/cheatsheet.html
+Bioconda: https://bioconda.github.io/
 
 First, let's make sure conda is installed:
 
@@ -103,7 +106,7 @@ To verify that the programs are installed use the which command again:
 ```
 which fastp
 # /opt/conda/envs/rnaseq/bin/fastp
-which conda
+which kallisto
 # /opt/conda/envs/rnaseq/bin/kallisto 
 ```
 
@@ -121,6 +124,8 @@ tree rnaseq_project
 
 
 ## fastp
+
+Manual: https://github.com/OpenGene/fastp
 
 ```
 cd rnaseq_project
@@ -296,10 +301,10 @@ mkdir -p ${DATA_FILT}
 ## -w sets the number of threads fastp will use; more threads means it runs faster, up to 16 cores
 ## 
 
-fastp -i ${DATA_RAW}/${SAMPLE}_1.fastq.gz \
-    -I ${DATA_RAW}/${SAMPLE}_2.fastq.gz \
-    -o ${DATA_FILT}/${SAMPLE}_1.filt.fastq.gz \
-    -O ${DATA_FILT}/${SAMPLE}_2.filt.fastq.gz \
+fastp -i ${DATA_RAW}/${SAMPLE}_1.sub_1m.fastq.gz \
+    -I ${DATA_RAW}/${SAMPLE}_2.sub_1m.fastq.gz \
+    -o ${DATA_FILT}/${SAMPLE}_1.sub_1m.filt.fastq.gz \
+    -O ${DATA_FILT}/${SAMPLE}_2.sub_1m.filt.fastq.gz \
     -h ${DATA_FILT}/${SAMPLE}.fastp.report.html \
     -j ${DATA_FILT}/${SAMPLE}.fastp.report.json \
     -w 3 \
@@ -374,6 +379,8 @@ tree trimmed_reads/
 
 
 ## Kallisto
+
+Manual: https://pachterlab.github.io/kallisto/manual
 
 Discuss Kallisto. (back to slides)
 

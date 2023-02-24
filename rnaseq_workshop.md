@@ -5,12 +5,10 @@
 
 Go to https://jupyterhub.greatplains.net and use your KU/Gmail/Github login. 
 
-Select Genomics Workshop Supplement and click the start server button. This will take a while. In the meantime, discuss the following (slides):
- - RNAseq  
- - analytical pipeline  
- - data 
-
-BK: add slides and slide numbers here. 
+Select Genomics Workshop Supplement and click the start server button. This will take a while. In the meantime, discuss the following (**slides 1-7**):
+ - RNA sequencing 
+ - demo data 
+ - analytical pipeline 
 
 When the JupyterHub server is ready.. 
 
@@ -62,8 +60,8 @@ Conda is a package manager - it makes software installation easier. Here are the
 2. install the software that we need
 3. activate the environment 
 
-Documentation: https://docs.conda.io/en/latest/
-Cheat sheet: https://docs.conda.io/projects/conda/en/latest/user-guide/cheatsheet.html
+Documentation: https://docs.conda.io/en/latest/  
+Cheat sheet: https://docs.conda.io/projects/conda/en/latest/user-guide/cheatsheet.html  
 Bioconda: https://bioconda.github.io/
 
 First, let's make sure conda is installed:
@@ -102,7 +100,7 @@ conda install -c bioconda fastp kallisto tree
 ```
 We will be asked to confirm that we want to install `fastp`, `kallisto`, `tree` and their dependencies. We will type 'y' and press enter. 
 
-To verify that the programs are installed use the which command again:
+To verify that the programs are installed use the `which` command again:
 ```
 which fastp
 # /opt/conda/envs/rnaseq/bin/fastp
@@ -149,7 +147,7 @@ fastp -i SRR11799527_1.sub_1m.fastq.gz \
 -O SRR11799527_2.sub_1m.filt.fastq.gz 
 ```
 
-
+Fastp output to terminal
 ```
 Read1 before filtering:
 total reads: 1000000
@@ -200,22 +198,22 @@ Describe outputs. You can download the html report by navigating to the folder i
 
 (Walk learners through the report)
 
-Now, let's look at the other options that might be of of interest to us:
+Now, let's look at the other options that might be of interest to us:
 
 ```
 
 fastp -i SRR11799527_1.sub_1m.fastq.gz \
-    -I SRR11799527_2.sub_1m.fastq.gz \
-    -o SRR11799527_1.sub_1m.filt.fastq.gz \
-    -O SRR11799527_2.sub_1m.filt.fastq.gz \
-    -h SRR11799527.fastp.report.html \
-    -j SRR11799527.fastp.report.json \
-    -w 3 \
-    --correction \
-    --cut_by_quality3 \
-    --cut_window_size 5 \
-    --cut_mean_quality 30 \
-    --overrepresentation_analysis 
+  -I SRR11799527_2.sub_1m.fastq.gz \
+  -o SRR11799527_1.sub_1m.filt.fastq.gz \
+  -O SRR11799527_2.sub_1m.filt.fastq.gz \
+  -h SRR11799527.fastp.report.html \
+  -j SRR11799527.fastp.report.json \
+  -w 3 \
+  --correction \
+  --cut_by_quality3 \
+  --cut_window_size 5 \
+  --cut_mean_quality 30 \
+  --overrepresentation_analysis 
 
 ```
 The output is very similar to the first run. 
@@ -284,35 +282,41 @@ nano run_fastp.sh
 ```
 
 ```
-SAMPLE=${1}
+SAMPLE=${1} # ${1} is the first argument provided to the sctipt on the command line
 echo ${SAMPLE}
 
 # reminder that each sample has its own folder containing all fastq files associated with that sample
 DATA_RAW=/home/jovyan/rnaseq_project/raw_reads/${SAMPLE}
 # each sample will have its own folder with the trimmed fastq files
-## first, we generate the name of the folder
+## first, we generate the full path for the folder
 DATA_FILT=/home/jovyan/rnaseq_project/trimmed_reads/${SAMPLE}
-## next, we create the directory with mkdir
+## next, we create the folder with mkdir
 mkdir -p ${DATA_FILT}
 
 # now we are ready to run fastq to do read trimming
-## -h HTML report output path
-## -j JSON report output path
-## -w sets the number of threads fastp will use; more threads means it runs faster, up to 16 cores
-## 
+## no need to have learners type the next few lines; they are here simply for reference for the instructor
+## -h: HTML report output path
+## -j: JSON report output path
+## -w: sets the number of threads fastp will use; more threads means it runs faster, up to 16 cores
+## --correction: enable base correction in overlapped regions (only for PE data)
+## --cut_by_quality3: enable per read cutting by quality in the 3' tail
+## --cut_window_size: the size of the sliding window for sliding window trimming
+## --cut_mean_quality: the bases in the sliding window with mean quality below cutting_quality will be cut
+## --overrepresentation_analysis: enable overrepresented sequence analysis 
+
 
 fastp -i ${DATA_RAW}/${SAMPLE}_1.sub_1m.fastq.gz \
-    -I ${DATA_RAW}/${SAMPLE}_2.sub_1m.fastq.gz \
-    -o ${DATA_FILT}/${SAMPLE}_1.sub_1m.filt.fastq.gz \
-    -O ${DATA_FILT}/${SAMPLE}_2.sub_1m.filt.fastq.gz \
-    -h ${DATA_FILT}/${SAMPLE}.fastp.report.html \
-    -j ${DATA_FILT}/${SAMPLE}.fastp.report.json \
-    -w 3 \
-    --correction \
-    --cut_by_quality3 \
-    --cut_window_size 5 \
-    --cut_mean_quality 30 \
-    --overrepresentation_analysis 
+  -I ${DATA_RAW}/${SAMPLE}_2.sub_1m.fastq.gz \
+  -o ${DATA_FILT}/${SAMPLE}_1.sub_1m.filt.fastq.gz \
+  -O ${DATA_FILT}/${SAMPLE}_2.sub_1m.filt.fastq.gz \
+  -h ${DATA_FILT}/${SAMPLE}.fastp.report.html \
+  -j ${DATA_FILT}/${SAMPLE}.fastp.report.json \
+  -w 3 \
+  --correction \
+  --cut_by_quality3 \
+  --cut_window_size 5 \
+  --cut_mean_quality 30 \
+  --overrepresentation_analysis 
 ```
 
 let's run it for one sample:
@@ -365,12 +369,55 @@ SRR11799545
 SRR11799546
 ```
 
+## While Loops
+
+While loops are very similar to for loops. They repeat a set of commands until a condition is met. In this case, we will read a file with sample names and execute a command with each sample name. Let's consider the following example of a while loop to illustrate how a while loop works. 
+
+
 ```
 while read SRRID
 do
+  echo "bash run_fastp.sh ${SRRID}"
+done < SRR_IDs.txt
+```
+What bash did here is to read each line of the file, and print the following statement for each line: "bash run_fastp.sh SRRID" replacing SRRID with the sample name read from the file. 
+
+
+The output is the following:
+```
+bash run_fastp.sh SRR11799527
+bash run_fastp.sh SRR11799528
+bash run_fastp.sh SRR11799529
+bash run_fastp.sh SRR11799530
+bash run_fastp.sh SRR11799531
+bash run_fastp.sh SRR11799532
+bash run_fastp.sh SRR11799533
+bash run_fastp.sh SRR11799534
+bash run_fastp.sh SRR11799535
+bash run_fastp.sh SRR11799536
+bash run_fastp.sh SRR11799537
+bash run_fastp.sh SRR11799538
+bash run_fastp.sh SRR11799539
+bash run_fastp.sh SRR11799540
+bash run_fastp.sh SRR11799541
+bash run_fastp.sh SRR11799542
+bash run_fastp.sh SRR11799543
+bash run_fastp.sh SRR11799544
+bash run_fastp.sh SRR11799545
+bash run_fastp.sh SRR11799546
+```
+
+Using `echo` statements is a great way to verify your command before running the. Since these commands look correct, we can go ahead and run the same while loop without the `echo` command in front of the shell script command. But to get some feedback while the command is running, we add an echo statement to the beginning of the while loop.  
+
+```
+while read SRRID
+do
+  echo "fastp is working on the following sample: ${SRRID}" 
   bash run_fastp.sh ${SRRID}
 done < SRR_IDs.txt
 ```
+
+Let's examine the directory structure of the `trimmed_reads` folder and verify that every folder contains two fastq files. 
 
 ```
 tree trimmed_reads/
@@ -382,10 +429,8 @@ tree trimmed_reads/
 
 Manual: https://pachterlab.github.io/kallisto/manual
 
-Discuss Kallisto. (back to slides)
 
-
-In order to quantify the RNA-seq data for our samples, we need the transcript sequences for _D. melanogaster_. Open a new browser tab, and search for [flybase](https://flybase.org/). Go to downloads, and click on Genomes (FTP). Next, click on Drosophila melanogaster, and then navigate to the most recent release `dmel_r6.50_FB2023_01/` (at the bottom of the page). Since we need the transcript sequences, we will look in the `fasta` folder. The file that we are interested in is called `dmel-all-transcript-r6.50.fasta.gz`. Right click and select "Copy link" on that file name. We can use that link to download the reference transciptome. 
+In order to quantify the RNA-seq data for our samples, we need the transcript sequences for _D. melanogaster_. Open a new browser tab, and search for [flybase](https://flybase.org/). Go to downloads, and click on Genomes (FTP). Next, click on `Drosophila melanogaster`, and then navigate to the most recent release `dmel_r6.50_FB2023_01/` (at the bottom of the page). Since we need the transcript sequences, we will look in the `fasta` folder. The file that we are interested in is called `dmel-all-transcript-r6.50.fasta.gz`. Right click and select "Copy link" on that file name. We can use that link to download the reference transciptome. 
 
 Check pwd and ensure everyone is at the same place: home dir
 
@@ -393,7 +438,7 @@ Check pwd and ensure everyone is at the same place: home dir
 wget http://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r6.50_FB2023_01/fasta/dmel-all-transcript-r6.50.fasta.gz
 ```
 
-Now, let's move the file we just downloaded to a new directory in the `rnaseq_project` directory. 
+Now, let's move the file we just downloaded to a new directory in the `rnaseq_project` folder. 
 
 ```
 mkdir rnaseq_project/refs
@@ -405,9 +450,14 @@ Next, we have to prepare the reference transcriptome for the quantification step
 
 ```
 cd rnaseq_project/refs/
+
+ls 
+
 kallisto index -i dmel-all-transcript-r6.50.idx  dmel-all-transcript-r6.50.fasta.gz
 ```
 (this will take about a minute)
+
+Check what the contents of the directory are after the indexing step:
 
 ```
 ls
@@ -424,7 +474,7 @@ ls
 # SRR11799527_1.sub_1m.filt.fastq.gz  SRR11799527_2.sub_1m.filt.fastq.gz  SRR11799527.fastp.report.html  SRR11799527.fastp.report.json
 ```
 
-Next, run `kallisto quant`
+Next, run `kallisto quant` to qunatify transcript abundances which will be used in the Differential Expression analysis later:
 ```
 kallisto quant -i ../../refs/dmel-all-transcript-r6.50.idx -t 3 -o SRR11799527_kallisto SRR11799527_1.sub_1m.filt.fastq.gz SRR11799527_2.sub_1m.filt.fastq.gz
 ```
@@ -477,7 +527,7 @@ cat SRR11799527_kallisto/run_info.json
 ```
 
 
-Now that we know how to run kallisto, let's make a shell script that we use to quantify all the samples. First, let's cleanup the trimmed reads directory. 
+Now that we know how to run kallisto, let's make a shell script that we can use to quantify all the samples. First, let's cleanup the trimmed reads directory first. 
 
 ```
 rm SRR11799527_kallisto/*
@@ -518,27 +568,72 @@ ${DATA_FILT}/${SAMPLE}_1.sub_1m.filt.fastq.gz \
 ${DATA_FILT}/${SAMPLE}_2.sub_1m.filt.fastq.gz
 ```
 
+Let's test the script on our favorite sample:
 ```
 bash run_kallisto.sh SRR11799527
 
 ```
 
+If it executes without errors, we can check the `quantification` directory for the outputs:
 
 ```
-ls quantification\
+ls quantification/
 # SRR11799527_kallisto
+
+ls quantification/SRR11799527_kallisto/
+# there should be 3 files: abundance.h5  abundance.tsv  run_info.json
 ```
 
+Now that we know our script runs for one sample, we can use a `while` loop to qunatify all samples. We will use the same strategy as we did with fastp: run the command in an `echo` statement first to verify that we are generating the commands properly:
 
 ```
 while read SRRID
 do
+  echo "bash run_kallisto.sh ${SRRID}"
+done < SRR_IDs.txt
+```
+
+The output of the while loop should look like this:
+```
+bash run_kallisto.sh SRR11799527
+bash run_kallisto.sh SRR11799528
+bash run_kallisto.sh SRR11799529
+bash run_kallisto.sh SRR11799530
+bash run_kallisto.sh SRR11799531
+bash run_kallisto.sh SRR11799532
+bash run_kallisto.sh SRR11799533
+bash run_kallisto.sh SRR11799534
+bash run_kallisto.sh SRR11799535
+bash run_kallisto.sh SRR11799536
+bash run_kallisto.sh SRR11799537
+bash run_kallisto.sh SRR11799538
+bash run_kallisto.sh SRR11799539
+bash run_kallisto.sh SRR11799540
+bash run_kallisto.sh SRR11799541
+bash run_kallisto.sh SRR11799542
+bash run_kallisto.sh SRR11799543
+bash run_kallisto.sh SRR11799544
+bash run_kallisto.sh SRR11799545
+bash run_kallisto.sh SRR11799546
+```
+
+If that's what you got, proceed with the actual quantification:
+```
+while read SRRID
+do
+  echo "kallisto is qunatifying transcripts for this sample: ${SRRID}"
   bash run_kallisto.sh ${SRRID}
 done < SRR_IDs.txt
 ```
 
+Let's check the directory structure of `quantification`:
+```
+tree quantification/
+```
 
+Now that we have performed the quantification of transcripts, we can move on to using these outputs for Differential Expression (DE for short) analysis. 
 
+(OPTIONAL) We can review the pipeline using **slides 9-17**. 
 
 
 
